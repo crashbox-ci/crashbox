@@ -1,8 +1,8 @@
 package crashbox.ci
 package model
 
-import spray.json.{DefaultJsonProtocol, DerivedFormats}
+import spray.json.DefaultJsonProtocol
 
-trait ApiProtocol extends DefaultJsonProtocol with DerivedFormats {
+trait ApiProtocol extends DefaultJsonProtocol {
   // add custom protocols here
 }

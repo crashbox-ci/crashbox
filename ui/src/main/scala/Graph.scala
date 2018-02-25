@@ -23,7 +23,7 @@ object Graph extends JsApp with ApiProtocol {
       )
     }
 
-    Http.get[model.spec.Image.Docker]("/api").onComplete {
+    Http.get[model.spec.Image]("/api").onComplete {
       case Success(m)   => console.info(m.toString)
       case Failure(err) => console.error(err.toString)
     }

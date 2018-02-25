@@ -1,8 +1,7 @@
 scalaVersion in ThisBuild := "2.12.4"
 
 def shared = Seq(
-  unmanagedSourceDirectories in Compile += (baseDirectory in ThisBuild).value / "shared" / "src" / "main" / "scala",
-  libraryDependencies += "com.propensive" %%% "magnolia" % "0.7.0"
+  unmanagedSourceDirectories in Compile += (baseDirectory in ThisBuild).value / "shared" / "src" / "main" / "scala"
 )
 
 lazy val server = (project in file("server"))
@@ -14,6 +13,7 @@ lazy val server = (project in file("server"))
       "com.typesafe.slick" %% "slick" % "3.2.1",
       "org.slf4j" % "slf4j-nop" % "1.6.4",
       "com.h2database" % "h2" % "1.4.196",
+      "io.crashbox" %% "spray-json" % "2.0.0-SNAPSHOT"
     )
   )
   .settings(Js.dependsOnJs(ui))
@@ -24,11 +24,26 @@ lazy val ui = (project in file("ui"))
   .disablePlugins(RevolverPlugin)
   .settings(shared)
   .settings(
-    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.2"
+    libraryDependencies ++= Seq(
+      "org.scala-js" %% "scalajs-dom_sjs0.6" % "0.9.2",
+      "io.crashbox" %% "spray-json_sjs0.6" % "2.0.0-SNAPSHOT"
+    )
   )
 
+lazy val cbx = (project in file("cbx"))
+  .enablePlugins(ScalaNativePlugin)
+  .settings(
+    name := "cbx",
+    scalaVersion := "2.11.12",
+    nativeMode := "debug",
+    libraryDependencies ++= Seq(
+      "io.crashbox" %% "spray-json_native0.3" % "2.0.0-SNAPSHOT"
+    )
+  )
+
+
 lazy val root = (project in file("."))
-  .aggregate(server, ui)
+  .aggregate(server, ui, cbx)
   .settings(
     publish := {},
     publishLocal := {}
