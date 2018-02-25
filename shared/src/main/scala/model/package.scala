@@ -40,7 +40,7 @@ object `package` {
     }
 
     def fromString(str: String): HashId = fromBytes(str.getBytes("utf-8"))
-
+    /*
     def fromFile(file: Path): HashId = {
       val digest = MessageDigest.getInstance("SHA-256")
       Files.walk(file).filter(Files.isRegularFile(_)).forEach { f =>
@@ -52,7 +52,7 @@ object `package` {
         }
       }
       HashId(bytesToHex(digest.digest()))
-    }
+    }*/
 
     def combineOrdered(hashes: Traversable[HashId]) =
       hashes.toSeq.sorted.fold(Zero)(_ combine _)

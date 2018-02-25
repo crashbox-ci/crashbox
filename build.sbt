@@ -40,6 +40,7 @@ lazy val cbx = (project in file("cbx"))
       "io.crashbox" %% "spray-json_native0.3" % "2.0.0-SNAPSHOT"
     )
   )
+.settings(shared)
 
 
 lazy val root = (project in file("."))
