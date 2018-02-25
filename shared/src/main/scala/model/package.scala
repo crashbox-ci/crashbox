@@ -6,7 +6,6 @@ import java.nio.ByteBuffer
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
 
-
 object `package` {
 
   case class HashId(hash: String) extends AnyVal {
@@ -16,9 +15,11 @@ object `package` {
 
   object HashId {
 
-    final val Zero = HashId("0000000000000000000000000000000000000000000000000000000000000000")
+    final val Zero = HashId(
+      "0000000000000000000000000000000000000000000000000000000000000000")
 
-    implicit val ordering: Ordering[HashId] = Ordering.by((hash: HashId) => hash.hash)
+    implicit val ordering: Ordering[HashId] =
+      Ordering.by((hash: HashId) => hash.hash)
 
     private def bytesToHex(hash: Array[Byte]): String = {
       val hexString = new StringBuffer
@@ -53,7 +54,8 @@ object `package` {
       HashId(bytesToHex(digest.digest()))
     }
 
-    def combineOrdered(hashes: Traversable[HashId]) = hashes.toSeq.sorted.fold(Zero)(_ combine _)
+    def combineOrdered(hashes: Traversable[HashId]) =
+      hashes.toSeq.sorted.fold(Zero)(_ combine _)
   }
 
   def using[A >: Null <: Closeable, B](mkResource: => A)(action: A => B): B = {

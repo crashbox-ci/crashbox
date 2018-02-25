@@ -17,8 +17,8 @@ object Image {
 }
 
 case class Task(
-                 name: String,
-                 dependencies: Set[Source],
-                 image: Image,
-                 script: String
-               )
+    name: String,
+    dependencies: Set[Source],
+    image: Image,
+    script: String
+)

@@ -22,26 +22,29 @@ import scala.annotation.tailrec
 
 /**
   * A JsonPrinter that produces a nicely readable JSON source.
- */
+  */
 trait PrettyPrinter extends JsonPrinter {
   val Indent = 2
 
   def print(x: JsValue, sb: StringBuilder) {
     print(x, sb, 0)
   }
-  
+
   protected def print(x: JsValue, sb: StringBuilder, indent: Int) {
     x match {
       case JsObject(x) => printObject(x, sb, indent)
       case JsArray(x)  => printArray(x, sb, indent)
-      case _ => printLeaf(x, sb)
+      case _           => printLeaf(x, sb)
     }
   }
 
-  protected def organiseMembers(members: Map[String, JsValue]): Seq[(String, JsValue)] = members.toSeq
+  protected def organiseMembers(
+      members: Map[String, JsValue]): Seq[(String, JsValue)] = members.toSeq
 
-  protected def printObject(members: Map[String, JsValue], sb: StringBuilder, indent: Int) {
-    sb.append("{\n")    
+  protected def printObject(members: Map[String, JsValue],
+                            sb: StringBuilder,
+                            indent: Int) {
+    sb.append("{\n")
     printSeq(organiseMembers(members), sb.append(",\n")) { m =>
       printIndent(sb, indent + Indent)
       printString(m._1, sb)
@@ -52,13 +55,15 @@ trait PrettyPrinter extends JsonPrinter {
     printIndent(sb, indent)
     sb.append("}")
   }
-  
-  protected def printArray(elements: Seq[JsValue], sb: StringBuilder, indent: Int) {
+
+  protected def printArray(elements: Seq[JsValue],
+                           sb: StringBuilder,
+                           indent: Int) {
     sb.append('[')
     printSeq(elements, sb.append(", "))(print(_, sb, indent))
     sb.append(']')
   }
-  
+
   protected def printIndent(sb: StringBuilder, indent: Int) {
     @tailrec def rec(indent: Int): Unit =
       if (indent > 0) {

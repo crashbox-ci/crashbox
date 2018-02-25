@@ -15,7 +15,8 @@ trait JsApp {
     if (_env != null) {
       _env
     } else {
-      sys.error("Environment is unavailable because the application isn't initialized yet!")
+      sys.error(
+        "Environment is unavailable because the application isn't initialized yet!")
     }
 
   lazy val cookies: Map[String, String] = dom.document.cookie
@@ -53,6 +54,6 @@ trait JsApp {
   * @param styleRoot An html 'style' tag to which app-specific styles are appended.
   * @param baseUrl Base URL. */
 case class Environment(
-                        root: html.Element,
-                        baseUrl: String
-                      )
+    root: html.Element,
+    baseUrl: String
+)

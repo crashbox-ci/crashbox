@@ -22,9 +22,13 @@ object Main extends App {
 
   log("Application components initializing")
   val dashboard = new route.Dashboard(config.getString("title"))
-  Http().bindAndHandle(dashboard.route, config.getString("address"), config.getInt("port")).map{binding =>
-    log(s"Listening on ${binding.localAddress.toString}")
-  }
+  Http()
+    .bindAndHandle(dashboard.route,
+                   config.getString("address"),
+                   config.getInt("port"))
+    .map { binding =>
+      log(s"Listening on ${binding.localAddress.toString}")
+    }
 
   system.registerOnTermination(println("App stopping"))
 }

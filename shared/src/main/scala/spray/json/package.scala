@@ -20,11 +20,14 @@ package object json {
 
   type JsField = (String, JsValue)
 
-  def deserializationError(msg: String, cause: Throwable = null, fieldNames: List[String] = Nil) = throw new DeserializationException(msg, cause, fieldNames)
+  def deserializationError(msg: String,
+                           cause: Throwable = null,
+                           fieldNames: List[String] = Nil) =
+    throw new DeserializationException(msg, cause, fieldNames)
   def serializationError(msg: String) = throw new SerializationException(msg)
 
   def jsonReader[T](implicit reader: JsonReader[T]) = reader
-  def jsonWriter[T](implicit writer: JsonWriter[T]) = writer 
+  def jsonWriter[T](implicit writer: JsonWriter[T]) = writer
 
   implicit def enrichAny[T](any: T) = new RichAny(any)
   implicit def enrichString(string: String) = new RichString(string)
@@ -37,7 +40,10 @@ package object json {
 
 package json {
 
-  case class DeserializationException(msg: String, cause: Throwable = null, fieldNames: List[String] = Nil) extends RuntimeException(msg, cause)
+  case class DeserializationException(msg: String,
+                                      cause: Throwable = null,
+                                      fieldNames: List[String] = Nil)
+      extends RuntimeException(msg, cause)
   class SerializationException(msg: String) extends RuntimeException(msg)
 
   private[json] class RichAny[T](any: T) {

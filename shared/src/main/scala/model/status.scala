@@ -5,15 +5,16 @@ package status
 import java.time.Instant
 
 case class Task(
-               name: String,
-               scheduleTime: Instant,
-               prev: Option[HashId],
-               result: Option[HashId],
-               script: () => HashId,
-               parents: Int,
-               children: Set[String]
-               ) {
-  lazy val id = HashId.fromString(name).combine(HashId.fromString(scheduleTime.toString))
+    name: String,
+    scheduleTime: Instant,
+    prev: Option[HashId],
+    result: Option[HashId],
+    script: () => HashId,
+    parents: Int,
+    children: Set[String]
+) {
+  lazy val id =
+    HashId.fromString(name).combine(HashId.fromString(scheduleTime.toString))
 }
 
 object All {
@@ -32,13 +33,15 @@ object All {
 
   def schedule(nodeId: HashId) = {
     val node = graph(nodeId)
-    val task = node.copy(scheduleTime = Instant.now(), prev = Some(nodeId), result = None)
+    val task = node.copy(scheduleTime = Instant.now(),
+                         prev = Some(nodeId),
+                         result = None)
     ???
   }
 
   def run(nodeId: HashId) = {
     val node = graph(nodeId)
-    synchronized{
+    synchronized {
       //
     }
   }
