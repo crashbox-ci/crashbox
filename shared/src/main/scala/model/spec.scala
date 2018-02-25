@@ -2,7 +2,7 @@ package crashbox.ci
 package model
 package spec
 
-trait Source
+sealed trait Source
 object Source {
   // url can be name of local task or task defined in other pipeline
   // local: build-all
@@ -11,7 +11,7 @@ object Source {
   case class External(url: String) extends Source
 }
 
-trait Image
+sealed trait Image
 object Image {
   case class Docker(url: String) extends Image
 }
