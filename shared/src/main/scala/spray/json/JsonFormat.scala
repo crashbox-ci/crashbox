@@ -17,7 +17,7 @@
 
 package spray.json
 
-import annotation.implicitNotFound
+import scala.annotation.implicitNotFound
 
 /**
   * Provides the JSON deserialization for type T.

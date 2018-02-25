@@ -5,7 +5,7 @@ import org.scalajs.dom.{console, html}
 
 import scala.concurrent.ExecutionContext
 import scala.scalajs.js
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
+import scala.scalajs.js.annotation.JSExport
 
 trait JsApp {
   implicit val executionContext: ExecutionContext = ExecutionContext.global

@@ -18,7 +18,7 @@
 
 package spray.json
 
-import collection.immutable
+import scala.collection.immutable
 
 /**
   * The general type of a JSON AST node.

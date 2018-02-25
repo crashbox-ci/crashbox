@@ -17,7 +17,8 @@
 package spray.json
 
 import java.lang.StringBuilder
-import annotation.tailrec
+
+import scala.annotation.tailrec
 
 /**
   * A JsonPrinter that produces a nicely readable JSON source.

@@ -2,9 +2,8 @@ package crashbox.ci
 package route
 
 import akka.http.scaladsl.server.Directives
-import model.ApiProtocol
-import model.spec.Image
-import spray.json.{DefaultJsonProtocol, DerivedFormats}
+import crashbox.ci.model.ApiProtocol
+import crashbox.ci.model.spec.Image
 
 class Dashboard(title: String) extends Directives with TwirlSupport with ApiProtocol with SprayJsonSupport {
 

@@ -1,15 +1,8 @@
 package crashbox.ci
 
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.UUID
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
 
 object Main extends App {
   def log(message: String) = System.err.println(message)

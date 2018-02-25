@@ -1,15 +1,11 @@
 package crashbox.ci
 
+import crashbox.ci.model.ApiProtocol
+import org.scalajs.dom.{console, document}
 import spray.json._
 
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
-import org.scalajs.dom.console
-import org.scalajs.dom.html
-import org.scalajs.dom.document
-import model.ApiProtocol
-
-import scala.util.Success
-import scala.util.Failure
+import scala.scalajs.js.annotation.JSExportTopLevel
+import scala.util.{Failure, Success}
 
 @JSExportTopLevel("Graph")
 object Graph extends JsApp with ApiProtocol {

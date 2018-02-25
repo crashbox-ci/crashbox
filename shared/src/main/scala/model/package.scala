@@ -3,11 +3,8 @@ package model
 
 import java.io.Closeable
 import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
-
-import scala.util.control.NonFatal
 
 
 object `package` {

@@ -16,8 +16,9 @@
 
 package spray.json
 
-import annotation.tailrec
 import java.lang.{StringBuilder => JStringBuilder}
+
+import scala.annotation.tailrec
 
 /**
   * A JsonPrinter serializes a JSON AST to a String.

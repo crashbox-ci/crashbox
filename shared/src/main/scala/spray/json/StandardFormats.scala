@@ -17,8 +17,6 @@
 
 package spray.json
 
-import scala.{Left, Right}
-
 /**
   * Provides the JsonFormats for the non-collection standard types.
  */

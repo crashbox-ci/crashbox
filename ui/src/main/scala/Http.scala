@@ -1,9 +1,7 @@
 package crashbox.ci
 
 import org.scalajs.dom.{ErrorEvent, Event, XMLHttpRequest}
-import org.scalajs.dom.console
-import spray.json.JsonReader
-import spray.json._
+import spray.json.{JsonReader, _}
 
 import scala.concurrent.{ExecutionContext, Future, Promise, TimeoutException}
 import scala.scalajs.js
