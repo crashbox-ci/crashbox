@@ -1,0 +1,33 @@
+body {
+  background-color: #333333;
+}
+
+.console {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+}
+
+.wrapper {
+  height: 100%;
+  display: flex;
+  color: #ffffff;
+  align-items: stretch;
+}
+
+.navbar {
+  flex-basis: content;
+  box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.5);
+}
+
+#sidebar {
+  background-color: rgb(39, 40, 34);
+  /*min-width: 250px;
+  max-width: 250px;*/
+  overflow: scroll;
+  overflow: -moz-scrollbars-none;  // Firefox
+}
+#sidebar::-webkit-scrollbar {
+  display: none;  // Safari and Chrome
+}
