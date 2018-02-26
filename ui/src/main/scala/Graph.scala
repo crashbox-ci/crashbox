@@ -14,12 +14,11 @@ object Graph extends JsApp with ApiProtocol {
 
   def ws(path: String): String = {
     val scheme = dom.window.location.protocol match {
-      case "http:" => "ws"
+      case "http:"  => "ws"
       case "https:" => "wss"
     }
     s"$scheme://${dom.window.location.host}$path"
   }
-
 
   case class A(x: Int)
 

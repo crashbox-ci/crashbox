@@ -21,7 +21,10 @@ class MessageService(stored: MessagesDal, live: LiveMessages) {
   }
 
   def push(message: Message)(implicit ec: ExecutionContext): Future[Message] = {
-    database.run(Messages += message).flatMap(_ => live.push(message)).map(_ => message)
+    database
+      .run(Messages += message)
+      .flatMap(_ => live.push(message))
+      .map(_ => message)
   }
 
 }

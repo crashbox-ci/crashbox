@@ -8,7 +8,10 @@ import service.MessageService
 import model.{ApiProtocol, Message}
 import spray.json._
 
-class Messages(service: MessageService) extends Directives with ApiProtocol with SprayJsonSupport {
+class Messages(service: MessageService)
+    extends Directives
+    with ApiProtocol
+    with SprayJsonSupport {
 
   def route = pathPrefix("messages") {
     path("feed") {
@@ -16,9 +19,7 @@ class Messages(service: MessageService) extends Directives with ApiProtocol with
         TextMessage(message.toJson.compactPrint)
       }
       handleWebSocketMessages(
-        Flow.fromSinkAndSource(Sink.ignore,
-          service.stream
-        ).via(toWebSocket)
+        Flow.fromSinkAndSource(Sink.ignore, service.stream).via(toWebSocket)
       )
     } ~ pathEndOrSingleSlash {
       extractExecutionContext { implicit ec =>

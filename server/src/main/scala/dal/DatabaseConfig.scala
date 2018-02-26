@@ -3,7 +3,7 @@ package dal
 
 import slick.jdbc.JdbcProfile
 
-trait DatabaseConfig{
+trait DatabaseConfig {
   val profile: JdbcProfile
   val database: JdbcProfile#Backend#Database
 }

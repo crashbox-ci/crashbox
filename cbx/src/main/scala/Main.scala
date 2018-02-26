@@ -21,7 +21,6 @@ object Main extends ApiProtocol {
 
   def main(args: Array[String]): Unit = {
 
-
     http.send(http.Request("GET", "https://github.com")).await match {
       case Success(res) =>
         println(res.headers.mkString("\n"))
@@ -32,19 +31,25 @@ object Main extends ApiProtocol {
     val request = http.Request("GET", "http://localhost:8080/api")
 
     http.send(request).await match {
-      case Success(str) => println("Result: " + (new String(str.body, "utf-8")).parseJson.convertTo[model.spec.Image])
+      case Success(str) =>
+        println(
+          "Result: " + (new String(str.body, "utf-8")).parseJson
+            .convertTo[model.spec.Image])
       case Failure(err) => println(err)
     }
 
     val content = if (args.length > 0) args(0) else "hello"
-    val post = http.Request("POST", "http://localhost:8080/messages",
+    val post = http.Request(
+      "POST",
+      "http://localhost:8080/messages",
       headers = Map(
         "Content-type" -> "application/json"
       ),
       body = model.Message.now(content).toJson.prettyPrint.getBytes("utf-8")
     )
     http.send(post).await match {
-      case Success(str) => println("Message delivered: " + new String(str.body, "utf-8"))
+      case Success(str) =>
+        println("Message delivered: " + new String(str.body, "utf-8"))
       case Failure(err) => println(err)
     }
 

@@ -25,7 +25,8 @@ object Main extends App {
     //override val database = profile.api.Database
     //.forURL("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
     override val profile = slick.jdbc.SQLiteProfile
-    override val database = profile.api.Database.forURL("jdbc:sqlite:database.db", driver = "org.sqlite.JDBC")
+    override val database = profile.api.Database
+      .forURL("jdbc:sqlite:database.db", driver = "org.sqlite.JDBC")
   }
   val stored = new dal.MessagesDal(db)
 
@@ -52,9 +53,7 @@ object Main extends App {
     messages.route
   )
   Http()
-    .bindAndHandle(routes,
-                   config.getString("address"),
-                   config.getInt("port"))
+    .bindAndHandle(routes, config.getString("address"), config.getInt("port"))
     .map { binding =>
       log(s"Listening on ${binding.localAddress.toString}")
     }

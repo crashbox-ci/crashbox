@@ -15,9 +15,11 @@ object CurlBackend {
   type Chunk = CStruct4[Ptr[CStruct0], Ptr[CStruct0], CSize, Ptr[Byte]]
   implicit class ChunksOps(val self: Ptr[Chunk]) extends AnyVal {
     @inline def prev: Ptr[Chunk] = (!self._1).cast[Ptr[Chunk]]
-    @inline def prev_=(other: Ptr[Chunk]): Unit = !(self._1) = other.cast[Ptr[CStruct0]]
+    @inline def prev_=(other: Ptr[Chunk]): Unit =
+      !(self._1) = other.cast[Ptr[CStruct0]]
     @inline def next: Ptr[Chunk] = (!self._2).cast[Ptr[Chunk]]
-    @inline def next_=(other: Ptr[Chunk]): Unit = !(self._2) = other.cast[Ptr[CStruct0]]
+    @inline def next_=(other: Ptr[Chunk]): Unit =
+      !(self._2) = other.cast[Ptr[CStruct0]]
     @inline def size: CSize = !(self._3)
     @inline def size_=(value: CSize): Unit = !(self._3) = value
     @inline def buffer: Ptr[Byte] = !(self._4)
@@ -30,7 +32,8 @@ object CurlBackend {
 
     def allocHead() = allocAppend(0, NullPtr[Chunk])
 
-    def allocAppend(size: CSize, head: Ptr[Chunk] = NullPtr[Chunk]): Ptr[Chunk] = {
+    def allocAppend(size: CSize,
+                    head: Ptr[Chunk] = NullPtr[Chunk]): Ptr[Chunk] = {
       val chunk: Ptr[Chunk] = stdlib.malloc(sizeof[Chunk]).cast[Ptr[Chunk]]
       if (chunk == NullPtr[Chunk]) return NullPtr[Chunk]
 
@@ -148,14 +151,19 @@ object CurlBackend {
         },
         () => {
           for ((k, v) <- request.headers) {
-            !requestHeaders = curl_slist_append(!requestHeaders, toCString(s"$k:$v"))
+            !requestHeaders =
+              curl_slist_append(!requestHeaders, toCString(s"$k:$v"))
           }
           curl_easy_setopt(curl, CURLoption.CURLOPT_HTTPHEADER, !requestHeaders)
         },
         () =>
           curl_easy_setopt(curl, CURLoption.CURLOPT_WRITEFUNCTION, receivePtr),
-        () => curl_easy_setopt(curl, CURLoption.CURLOPT_WRITEDATA, responseChunks),
-        () => curl_easy_setopt(curl, CURLoption.CURLOPT_HEADERDATA, responseHeaderChunks),
+        () =>
+          curl_easy_setopt(curl, CURLoption.CURLOPT_WRITEDATA, responseChunks),
+        () =>
+          curl_easy_setopt(curl,
+                           CURLoption.CURLOPT_HEADERDATA,
+                           responseHeaderChunks),
         () => curl_easy_perform(curl)
       )
 
@@ -165,7 +173,7 @@ object CurlBackend {
           curl_easy_getinfo(curl, CURLINFO.CURLINFO_RESPONSE_CODE, responseCode)
 
           val responseHeaders = mutable.HashMap.empty[String, String]
-          Chunk.traverse(responseHeaderChunks){ headerChunk =>
+          Chunk.traverse(responseHeaderChunks) { headerChunk =>
             val line = new String(headerChunk, "utf-8").trim
             if (line.contains(":")) {
               val parts = line.split(":", 2)
