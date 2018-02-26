@@ -1,13 +1,12 @@
 package crashbox.ci
 package http
-package backend
+
+import curl._
+import curlh._
 
 import scala.collection.Map
-import scala.collection.mutable.ArrayBuffer
 import scala.scalanative.native._
 import scala.util.{Failure, Success, Try}
-import curlh._
-import curl._
 
 object CurlBackend {
 
@@ -44,7 +43,7 @@ object CurlBackend {
     result
   }
 
-  private def _request(request: Request)(implicit z: Zone): Try[Response] = {
+  private def request(request: Request)(implicit z: Zone): Try[Response] = {
     val curl: CURL = curl_easy_init()
     if (curl != null) {
       val errorBuffer = stackalloc[Byte](CURL_ERROR_SIZE)
@@ -107,32 +106,10 @@ object CurlBackend {
     }
   }
 
-  def request(req: Request): Try[Response] = Zone { implicit z =>
-    _request(req)
-  }
-
 }
 
-object ArrayUtils {
-
-  def toBuffer(array: Array[Byte])(implicit z: Zone): Ptr[Byte] = {
-    val buffer = z.alloc(array.size)
-    var i = 0
-    while (i < array.size) {
-      buffer(i) = array(i)
-      i += 1
-    }
-    buffer
+trait CurlBackend extends Backend {
+  def request(req: Request): Try[Response] = Zone { implicit z =>
+    CurlBackend.request(req)
   }
-
-  def toArray(buffer: Ptr[Byte], size: CSize): Array[Byte] = {
-    val array = new Array[Byte](size.toInt)
-    var i = 0
-    while (i < array.size) {
-      array(i) = buffer(i)
-      i += 1
-    }
-    array
-  }
-
 }

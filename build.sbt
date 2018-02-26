@@ -7,7 +7,7 @@ import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{toScalaJSGroupID => _,
 scalaVersion in ThisBuild := "2.12.4"
 
 lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
-  .crossType(CrossType.Pure)
+  .crossType(CrossType.Full)
   .settings(
     libraryDependencies += "io.crashbox" %%% "spray-json" % "2.0.0-SNAPSHOT"
   )

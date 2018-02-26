@@ -1,6 +1,5 @@
 package crashbox.ci
 package http
-package backend
 
 import scala.scalanative.native._
 
