@@ -52,7 +52,7 @@ lazy val cbx = (project in file("cbx"))
   .dependsOn(sharedNative)
 
 lazy val root = (project in file("."))
-  .aggregate(server, ui, cbx)
+  .aggregate(server, ui, cbx, sharedJvm, sharedJs, sharedNative)
   .settings(
     publish := {},
     publishLocal := {}

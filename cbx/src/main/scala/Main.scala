@@ -11,13 +11,12 @@ import scala.util.{Failure, Success, Try}
 
 object Main extends DefaultJsonProtocol {
 
-  implicit class FutureOps[A](val future: Future[A]) extends AnyVal{
+  implicit class FutureOps[A](val future: Future[A]) extends AnyVal {
     def await: Try[A] = {
       Await.ready(future, Duration.Inf)
       future.value.get
     }
   }
-
 
   case class A(x: Int)
 

@@ -67,8 +67,8 @@ object CurlBackend {
           val buffer = ArrayUtils.toBuffer(request.body)
           curl_easy_setopt(curl, CURLoption.CURLOPT_POSTFIELDS, buffer)
           curl_easy_setopt(curl,
-            CURLoption.CURLOPT_POSTFIELDSIZE,
-            request.body.size)
+                           CURLoption.CURLOPT_POSTFIELDSIZE,
+                           request.body.size)
         },
         () =>
           curl_easy_setopt(curl, CURLoption.CURLOPT_WRITEFUNCTION, receivePtr),
