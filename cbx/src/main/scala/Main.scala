@@ -8,8 +8,9 @@ import spray.json._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, Future}
 import scala.util.{Failure, Success, Try}
+import model.ApiProtocol
 
-object Main extends DefaultJsonProtocol {
+object Main extends ApiProtocol {
 
   implicit class FutureOps[A](val future: Future[A]) extends AnyVal {
     def await: Try[A] = {
@@ -17,8 +18,6 @@ object Main extends DefaultJsonProtocol {
       future.value.get
     }
   }
-
-  case class A(x: Int)
 
   def main(args: Array[String]): Unit = {
     val request = http.Request("GET", "http://localhost:8080/api")
@@ -28,23 +27,17 @@ object Main extends DefaultJsonProtocol {
       case Failure(err) => println(err)
     }
 
-    //println(s"hello world ${A(2).toJson.toString}")
-    //val conn = url.openConnection()
-    //val reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))
-    /*
-      String inputLine;
-      while ((inputLine = br.readLine()) != null) {
-        System.out.println(inputLine);
-      }
-      br.close();
-
-      System.out.println("Done");
-
-    } catch (MalformedURLException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }*/
+    val content = if (args.length > 0) args(0) else "hello"
+    val post = http.Request("POST", "http://localhost:8080/messages",
+      headers = Map(
+        "Content-type" -> "application/json"
+      ),
+      body = model.Message.now(content).toJson.prettyPrint.getBytes("utf-8")
+    )
+    http.send(post).await match {
+      case Success(str) => println("Message delivered: " + new String(str.body, "utf-8"))
+      case Failure(err) => println(err)
+    }
 
   }
 

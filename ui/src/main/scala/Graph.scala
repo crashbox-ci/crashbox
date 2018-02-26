@@ -1,7 +1,9 @@
 package crashbox.ci
 
 import crashbox.ci.model.ApiProtocol
-import org.scalajs.dom.{console, document}
+import org.scalajs.dom
+import org.scalajs.dom.raw.WebSocket
+import org.scalajs.dom.{Event, MessageEvent, console, document}
 import spray.json._
 
 import scala.scalajs.js.annotation.JSExportTopLevel
@@ -9,6 +11,15 @@ import scala.util.{Failure, Success}
 
 @JSExportTopLevel("Graph")
 object Graph extends JsApp with ApiProtocol {
+
+  def ws(path: String): String = {
+    val scheme = dom.window.location.protocol match {
+      case "http:" => "ws"
+      case "https:" => "wss"
+    }
+    s"$scheme://${dom.window.location.host}$path"
+  }
+
 
   case class A(x: Int)
 
@@ -28,6 +39,18 @@ object Graph extends JsApp with ApiProtocol {
       case Failure(err) => console.error(err.toString)
     }
 
+    val socket = new WebSocket(ws("/messages/feed"))
+    socket.onmessage = (e: MessageEvent) => {
+      val str = e.data.asInstanceOf[String]
+      val message = str.parseJson.convertTo[model.Message]
+
+      val node = document.createElement("p")
+      val textnode = document.createTextNode(message.content.toString)
+      node.appendChild(textnode)
+      env.root.appendChild(
+        node
+      )
+    }
   }
 
 }

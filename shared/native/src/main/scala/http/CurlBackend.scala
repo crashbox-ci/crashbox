@@ -51,6 +51,8 @@ object CurlBackend {
       errorBuffer(0) = 0
       val userData: Ptr[ResponseHolder] = stackalloc[ResponseHolder](1)
       userData.size = 0
+      val headers = stackalloc[curl_slist](1)
+      !headers = 0.cast[curl_slist]
 
       val curlResult = chain(CURLcode.CURL_OK)(
         () =>
@@ -69,6 +71,12 @@ object CurlBackend {
           curl_easy_setopt(curl,
                            CURLoption.CURLOPT_POSTFIELDSIZE,
                            request.body.size)
+        },
+        () => {
+          for ((k, v) <- request.headers) {
+            !headers = curl_slist_append(!headers, toCString(s"$k:$v"))//0.cast[Curl_sCurl_slistlist])
+          }
+          curl_easy_setopt(curl, CURLoption.CURLOPT_HTTPHEADER, !headers)
         },
         () =>
           curl_easy_setopt(curl, CURLoption.CURLOPT_WRITEFUNCTION, receivePtr),
@@ -97,6 +105,7 @@ object CurlBackend {
       if (userData.size != 0) {
         stdlib.free(userData.buffer)
       }
+      curl_slist_free_all(!headers)
       curl_easy_cleanup(curl)
       result
     } else {

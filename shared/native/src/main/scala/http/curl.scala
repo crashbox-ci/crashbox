@@ -29,6 +29,7 @@ object curlh {
     final val CURLOPT_URL: CInt = 10002
     final val CURLOPT_ERRORBUFFER: CInt = 10010
     final val CURLOPT_POSTFIELDS: CInt = 10015
+    final val CURLOPT_HTTPHEADER: CInt = 10023
     final val CURLOPT_CUSTOMREQUEST: CInt = 10036
     final val CURLOPT_WRITEFUNCTION: CInt = 20011
   }
@@ -45,6 +46,9 @@ object curlh {
     Ptr[Byte], // userdata
     CSize // return
   ]
+
+  type curl_slist = Ptr[CStruct0]
+
 }
 
 @link("curl")
@@ -67,6 +71,10 @@ object curl {
   def curl_easy_cleanup(curl: CURL): Unit = extern
 
   def curl_easy_strerror(curl: CURL, code: CURLcode): CString = extern
+
+  def curl_slist_append(head: curl_slist, string: CString): curl_slist = extern
+
+  def curl_slist_free_all(head: curl_slist): Unit = extern
 
   def curl_version(): CString = extern
 
