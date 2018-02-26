@@ -11,6 +11,11 @@ lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .settings(
     libraryDependencies += "io.crashbox" %%% "spray-json" % "2.0.0-SNAPSHOT"
   )
+  .jsSettings(
+    libraryDependencies ++= Seq(
+      "org.scala-js" %%% "scalajs-dom" % "0.9.2",
+    )
+  )
   .nativeSettings(
     scalaVersion := "2.11.12"
   )
@@ -35,11 +40,6 @@ lazy val server = (project in file("server"))
 lazy val ui = (project in file("ui"))
   .enablePlugins(ScalaJSPlugin)
   .disablePlugins(RevolverPlugin)
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.scala-js" %% "scalajs-dom_sjs0.6" % "0.9.2",
-    )
-  )
   .dependsOn(sharedJs)
 
 lazy val cbx = (project in file("cbx"))

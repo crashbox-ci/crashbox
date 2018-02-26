@@ -5,6 +5,7 @@ import curl._
 import curlh._
 
 import scala.collection.Map
+import scala.concurrent.Future
 import scala.scalanative.native._
 import scala.util.{Failure, Success, Try}
 
@@ -109,7 +110,7 @@ object CurlBackend {
 }
 
 trait CurlBackend extends Backend {
-  def request(req: Request): Try[Response] = Zone { implicit z =>
-    CurlBackend.request(req)
+  def send(req: Request): Future[Response] = Zone { implicit z =>
+    Future.fromTry(CurlBackend.request(req))
   }
 }

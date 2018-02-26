@@ -4,16 +4,27 @@ import java.io.{BufferedReader, InputStream, InputStreamReader}
 import java.net.URL
 
 import spray.json._
-import scala.util.{Failure, Success}
+
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Awaitable, Future}
+import scala.util.{Failure, Success, Try}
 
 object Main extends DefaultJsonProtocol {
+
+  implicit class FutureOps[A](val future: Future[A]) extends AnyVal{
+    def await: Try[A] = {
+      Await.ready(future, Duration.Inf)
+      future.value.get
+    }
+  }
+
 
   case class A(x: Int)
 
   def main(args: Array[String]): Unit = {
     val request = http.Request("GET", "http://localhost:8080/api")
 
-    http.request(request) match {
+    http.send(request).await match {
       case Success(str) => println("Result: " + new String(str.body, "utf-8"))
       case Failure(err) => println(err)
     }

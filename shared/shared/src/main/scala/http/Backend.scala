@@ -1,8 +1,8 @@
 package crashbox.ci
 package http
 
-import scala.util.Try
+import scala.concurrent.Future
 
 trait Backend {
-  def request(request: Request): Try[Response]
+  def send(request: Request): Future[Response]
 }
