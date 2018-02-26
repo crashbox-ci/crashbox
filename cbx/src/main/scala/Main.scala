@@ -4,8 +4,6 @@ import java.io.{BufferedReader, InputStream, InputStreamReader}
 import java.net.URL
 
 import spray.json._
-import curl._
-
 import scala.util.{Failure, Success}
 
 object Main extends DefaultJsonProtocol {
@@ -13,8 +11,10 @@ object Main extends DefaultJsonProtocol {
   case class A(x: Int)
 
   def main(args: Array[String]): Unit = {
-    Http.get("http://localhost:8080/api") match {
-      case Success(str) => println(str.parseJson.convertTo[model.spec.Image])
+    val request = http.Request("GET", "http://localhost:8080/api")
+
+    http.request(request) match {
+      case Success(str) => println("Result: " + new String(str.body, "utf-8"))
       case Failure(err) => println(err)
     }
 
