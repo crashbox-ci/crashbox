@@ -1,6 +1,7 @@
 package crashbox.ci
 package route
 
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives
 import crashbox.ci.model.ApiProtocol
 import crashbox.ci.model.spec.Image
@@ -18,6 +19,8 @@ class Dashboard(title: String)
       println(req.headers)
       complete(Image.Docker("test"): Image)
     }
+  } ~ path("redir") {
+    redirect("/api", StatusCodes.Found)
   } ~ pathPrefix("assets") {
     getFromResourceDirectory("assets")
   }

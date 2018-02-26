@@ -21,15 +21,18 @@ object Main extends ApiProtocol {
 
   def main(args: Array[String]): Unit = {
 
+
     http.send(http.Request("GET", "https://github.com")).await match {
-      case Success(str) => println(new String(str.body, "utf-8"))
+      case Success(res) =>
+        println(res.headers.mkString("\n"))
+        println(new String(res.body, "utf-8"))
       case Failure(err) => println(err)
     }
 
     val request = http.Request("GET", "http://localhost:8080/api")
 
     http.send(request).await match {
-      case Success(str) => println("Result: " + new String(str.body, "utf-8"))
+      case Success(str) => println("Result: " + (new String(str.body, "utf-8")).parseJson.convertTo[model.spec.Image])
       case Failure(err) => println(err)
     }
 

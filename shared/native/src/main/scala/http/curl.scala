@@ -30,6 +30,7 @@ object curlh {
     final val CURLOPT_ERRORBUFFER: CInt = 10010
     final val CURLOPT_POSTFIELDS: CInt = 10015
     final val CURLOPT_HTTPHEADER: CInt = 10023
+    final val CURLOPT_HEADERDATA: CInt = 10029
     final val CURLOPT_CUSTOMREQUEST: CInt = 10036
     final val CURLOPT_WRITEFUNCTION: CInt = 20011
   }

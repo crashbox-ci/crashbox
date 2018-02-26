@@ -4,35 +4,108 @@ package http
 import curl._
 import curlh._
 
-import scala.collection.Map
+import scala.collection.{Map, mutable}
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.scalanative.native._
 import scala.util.{Failure, Success, Try}
 
 object CurlBackend {
 
-  type ResponseHolder = CStruct2[CSize, Ptr[Byte]]
+  type Chunk = CStruct4[Ptr[CStruct0], Ptr[CStruct0], CSize, Ptr[Byte]]
+  implicit class ChunksOps(val self: Ptr[Chunk]) extends AnyVal {
+    @inline def prev: Ptr[Chunk] = (!self._1).cast[Ptr[Chunk]]
+    @inline def prev_=(other: Ptr[Chunk]): Unit = !(self._1) = other.cast[Ptr[CStruct0]]
+    @inline def next: Ptr[Chunk] = (!self._2).cast[Ptr[Chunk]]
+    @inline def next_=(other: Ptr[Chunk]): Unit = !(self._2) = other.cast[Ptr[CStruct0]]
+    @inline def size: CSize = !(self._3)
+    @inline def size_=(value: CSize): Unit = !(self._3) = value
+    @inline def buffer: Ptr[Byte] = !(self._4)
+    @inline def buffer_=(value: Ptr[Byte]): Unit = !(self._4) = value
+  }
 
-  implicit class UserDataOps(val self: Ptr[ResponseHolder]) extends AnyVal {
-    @inline def size: CSize = !(self._1)
-    @inline def size_=(value: CSize): Unit = !(self._1) = value
-    @inline def buffer: Ptr[Byte] = !(self._2)
-    @inline def buffer_=(value: Ptr[Byte]): Unit = !(self._2) = value
+  object Chunk {
+
+    @inline def NullPtr[T] = 0.cast[Ptr[T]]
+
+    def allocHead() = allocAppend(0, NullPtr[Chunk])
+
+    def allocAppend(size: CSize, head: Ptr[Chunk] = NullPtr[Chunk]): Ptr[Chunk] = {
+      val chunk: Ptr[Chunk] = stdlib.malloc(sizeof[Chunk]).cast[Ptr[Chunk]]
+      if (chunk == NullPtr[Chunk]) return NullPtr[Chunk]
+
+      chunk.buffer = stdlib.malloc(size)
+
+      if (chunk.buffer == NullPtr[Chunk] && size != 0) {
+        stdlib.free(chunk.cast[Ptr[Byte]])
+        return NullPtr[Chunk]
+      }
+      chunk.size = size
+
+      if (head == NullPtr[Chunk]) { // this will be the head
+        chunk.next = chunk
+        chunk.prev = chunk
+      } else {
+        val last = head.prev
+        last.next = chunk
+        chunk.prev = last
+        head.prev = chunk
+        chunk.next = head
+      }
+      chunk
+    }
+
+    def freeAll(head: Ptr[Chunk]): Unit = {
+      var chunk: Ptr[Chunk] = head
+      do {
+        val next = chunk.next
+        stdlib.free(chunk.buffer)
+        stdlib.free(chunk.cast[Ptr[Byte]])
+        chunk = next
+      } while (chunk != head)
+    }
+
+    def toArray(head: Ptr[Chunk]): Array[Byte] = {
+      val buffer = new ArrayBuffer[Byte]()
+      var chunk = head
+      do {
+        val next = chunk.next
+        var i = 0l
+        while (i < next.size) {
+          buffer += next.buffer(i)
+          i += 1
+        }
+        chunk = next
+      } while (chunk != head)
+      buffer.toArray
+    }
+
+    def traverse(head: Ptr[Chunk])(fct: Array[Byte] => Unit) = {
+      var chunk = head
+      do {
+        val next = chunk.next
+        val buffer = new ArrayBuffer[Byte]()
+        var i = 0l
+        while (i < next.size) {
+          buffer += next.buffer(i)
+          i += 1
+        }
+        chunk = next
+        fct(buffer.toArray)
+      } while (chunk != head)
+    }
+
   }
 
   private def receive(data: Ptr[Byte],
                       size: CSize,
                       nmemb: CSize,
-                      voidptr: Ptr[Byte]): CSize = {
-    val userData: Ptr[ResponseHolder] = voidptr.cast[Ptr[ResponseHolder]]
-    userData.size = size * nmemb
-    userData.buffer = stdlib.malloc(userData.size)
-    if (userData.buffer != null) {
-      string.memcpy(userData.buffer, data, userData.size)
-      userData.size
-    } else {
-      0
-    }
+                      userdata: Ptr[Byte]): CSize = {
+    val head = userdata.cast[Ptr[Chunk]]
+    val length = size * nmemb
+    val chunk = Chunk.allocAppend(length, head)
+    string.memcpy(chunk.buffer, data, chunk.size)
+    chunk.size
   }
   private val receivePtr: WriteFunction = CFunctionPtr.fromFunction4(receive)
 
@@ -48,11 +121,12 @@ object CurlBackend {
     val curl: CURL = curl_easy_init()
     if (curl != null) {
       val errorBuffer = stackalloc[Byte](CURL_ERROR_SIZE)
-      errorBuffer(0) = 0
-      val userData: Ptr[ResponseHolder] = stackalloc[ResponseHolder](1)
-      userData.size = 0
-      val headers = stackalloc[curl_slist](1)
-      !headers = 0.cast[curl_slist]
+      !errorBuffer = 0
+      val requestHeaders = stackalloc[curl_slist](1)
+      !requestHeaders = 0.cast[curl_slist]
+
+      val responseChunks = Chunk.allocHead()
+      val responseHeaderChunks = Chunk.allocHead()
 
       val curlResult = chain(CURLcode.CURL_OK)(
         () =>
@@ -74,13 +148,14 @@ object CurlBackend {
         },
         () => {
           for ((k, v) <- request.headers) {
-            !headers = curl_slist_append(!headers, toCString(s"$k:$v"))//0.cast[Curl_sCurl_slistlist])
+            !requestHeaders = curl_slist_append(!requestHeaders, toCString(s"$k:$v"))
           }
-          curl_easy_setopt(curl, CURLoption.CURLOPT_HTTPHEADER, !headers)
+          curl_easy_setopt(curl, CURLoption.CURLOPT_HTTPHEADER, !requestHeaders)
         },
         () =>
           curl_easy_setopt(curl, CURLoption.CURLOPT_WRITEFUNCTION, receivePtr),
-        () => curl_easy_setopt(curl, CURLoption.CURLOPT_WRITEDATA, userData),
+        () => curl_easy_setopt(curl, CURLoption.CURLOPT_WRITEDATA, responseChunks),
+        () => curl_easy_setopt(curl, CURLoption.CURLOPT_HEADERDATA, responseHeaderChunks),
         () => curl_easy_perform(curl)
       )
 
@@ -89,11 +164,20 @@ object CurlBackend {
           val responseCode = stackalloc[Long](1)
           curl_easy_getinfo(curl, CURLINFO.CURLINFO_RESPONSE_CODE, responseCode)
 
+          val responseHeaders = mutable.HashMap.empty[String, String]
+          Chunk.traverse(responseHeaderChunks){ headerChunk =>
+            val line = new String(headerChunk, "utf-8").trim
+            if (line.contains(":")) {
+              val parts = line.split(":", 2)
+              responseHeaders += parts(0) -> parts(1)
+            }
+          }
+
           Success(
             Response(
               statusCode = (!responseCode).toInt,
-              headers = Map.empty,
-              body = ArrayUtils.toArray(userData.buffer, userData.size)
+              headers = responseHeaders.toMap,
+              body = Chunk.toArray(responseChunks)
             ))
 
         case code =>
@@ -102,10 +186,9 @@ object CurlBackend {
             new RuntimeException(
               s"${fromCString(errorBuffer)} (curl exit status $code)"))
       }
-      if (userData.size != 0) {
-        stdlib.free(userData.buffer)
-      }
-      curl_slist_free_all(!headers)
+      Chunk.freeAll(responseChunks)
+      Chunk.freeAll(responseHeaderChunks)
+      curl_slist_free_all(!requestHeaders)
       curl_easy_cleanup(curl)
       result
     } else {
