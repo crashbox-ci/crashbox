@@ -9,7 +9,7 @@ object Http {
 
   def get[A: JsonReader](url: String, headers: (String, String)*)(
     implicit ec: ExecutionContext): Future[A] = {
-    val request = http.Request("GET", url, headers.toMap, None)
+    val request = http.Request("GET", url, headers.toMap)
     http.send(request).flatMap{ response =>
       if (200 <= response.statusCode && response.statusCode < 300) {
         val str = new String(response.body, "utf-8")
@@ -19,7 +19,6 @@ object Http {
           new RuntimeException(s"Non-successful response from the server: ${response.statusCode}"))
       }
     }
-
   }
 
 }

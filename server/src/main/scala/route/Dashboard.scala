@@ -14,7 +14,10 @@ class Dashboard(title: String)
   val route = pathEndOrSingleSlash(
     complete(view.html.main(title))
   ) ~ path("api") {
-    complete(Image.Docker("test"): Image)
+    extractRequest { req =>
+      println(req.headers)
+      complete(Image.Docker("test"): Image)
+    }
   } ~ pathPrefix("assets") {
     getFromResourceDirectory("assets")
   }

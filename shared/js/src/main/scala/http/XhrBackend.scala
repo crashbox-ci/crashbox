@@ -7,7 +7,7 @@ import spray.json.JsonReader
 
 import scala.concurrent.{ExecutionContext, Future, Promise, TimeoutException}
 import scala.scalajs.js
-import scala.scalajs.js.typedarray.{ArrayBuffer, Int8Array, Uint8Array}
+import scala.scalajs.js.typedarray.{ArrayBuffer, Int8Array, TypedArrayBuffer, Uint8Array}
 
 trait XhrBackend extends Backend {
 
@@ -20,12 +20,9 @@ trait XhrBackend extends Backend {
     for ((name, value) <- request.headers) {
       xhr.setRequestHeader(name, value)
     }
-    request.body match {
-      case Some(data) => ???
 
-      case None =>
-        xhr.send()
-    }
+    xhr.send(js.Array(request.body: _*))
+
 
     xhr.onload = (e: Event) => {
       val body: Array[Byte] = if (!js.isUndefined(xhr.response)) {
