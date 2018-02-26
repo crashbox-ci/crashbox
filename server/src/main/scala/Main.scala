@@ -21,9 +21,11 @@ object Main extends App {
 
   log("Database configuration initializing")
   val db = new dal.DatabaseConfig {
-    override val profile = slick.jdbc.H2Profile
-    override val database = profile.api.Database
-      .forURL("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
+    //override val profile = slick.jdbc.H2Profile
+    //override val database = profile.api.Database
+    //.forURL("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
+    override val profile = slick.jdbc.SQLiteProfile
+    override val database = profile.api.Database.forURL("jdbc:sqlite:database.db", driver = "org.sqlite.JDBC")
   }
   val stored = new dal.MessagesDal(db)
 

@@ -31,7 +31,8 @@ lazy val server = (project in file("server"))
       "com.typesafe.akka" %% "akka-http" % "10.0.11",
       "com.typesafe.slick" %% "slick" % "3.2.1",
       "org.slf4j" % "slf4j-nop" % "1.6.4",
-      "com.h2database" % "h2" % "1.4.196"
+      "org.xerial" % "sqlite-jdbc" % "3.21.0.1"
+      //"com.h2database" % "h2" % "1.4.196"
     )
   )
   .settings(Js.dependsOnJs(ui))
