@@ -6,6 +6,8 @@ import crashbox.ci.model.ApiProtocol
 import org.scalajs.dom
 import org.scalajs.dom.raw.WebSocket
 import org.scalajs.dom.{Event, MessageEvent, console, document}
+import org.singlespaced.d3js.d3
+import org.singlespaced.d3js.Ops._
 import spray.json._
 
 import scala.scalajs.js
@@ -43,7 +45,7 @@ object UiMain extends JsApp with ApiProtocol {
       node
     }
     var head: dom.Element = null
-    def insert(node: dom.Element) = {
+    def insert(node: dom.Element): Unit = {
       if (head == null) {
         display.appendChild(node)
       } else {

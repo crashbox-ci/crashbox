@@ -54,6 +54,7 @@ lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .jsSettings(
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.2",
+      "org.singlespaced" %%% "scalajs-d3" % "0.3.4"
     )
   )
   .nativeSettings(
