@@ -158,7 +158,9 @@ object Parser {
 
         @annotation.tailrec
         def innerLine(): CommandLine = {
-          if (escaping) {
+          if (token.kind == EOL) {
+            check(None)
+          } else if (escaping) {
             parsedParameters += parameter()
             innerLine()
           } else if (token.kind == DOUBLE_DASH) {
@@ -186,8 +188,6 @@ object Parser {
           } else if (token.kind == LONG || token.kind == SHORT) {
             parsedOptions += option()
             innerLine()
-          } else if (token.kind == EOL) {
-            check(None)
           } else {
             fatal(s"unknown token $token")
           }

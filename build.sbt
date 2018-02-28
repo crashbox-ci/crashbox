@@ -12,6 +12,8 @@ lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .settings(
     libraryDependencies += "io.crashbox" %%% "spray-json" % "2.0.0-SNAPSHOT",
+    libraryDependencies += "com.lihaoyi" %%% "utest" % "0.6.3" % "test",
+    testFrameworks += new TestFramework("utest.runner.Framework"),
     sourceGenerators in Compile += Def.task {
       val file
         : File = (sourceManaged in Compile).value / "scala" / "BuildInfo.scala"
@@ -29,7 +31,8 @@ lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     )
   )
   .nativeSettings(
-    scalaVersion := "2.11.12"
+    scalaVersion := "2.11.12",
+    nativeLinkStubs := true
   )
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
