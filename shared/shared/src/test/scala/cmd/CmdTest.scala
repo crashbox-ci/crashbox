@@ -26,10 +26,13 @@ object CmdTests extends TestSuite {
                 cmd.Command("level2-2"))
   )
 
-  def parse(in: String) = cmd.parse(cbx, in.split(" ").tail).toTry.get
+  def parse(in: String): CommandLine = cmd.parse(cbx, in.split(" ").tail) match {
+    case Left(ex) => throw ex
+    case Right(res) => res
+  }
 
   def shouldFail(in: String) =
-    assert(cmd.parse(cbx, in.split(" ").tail).toTry.isFailure)
+    assert(cmd.parse(cbx, in.split(" ").tail).isLeft)
 
   val tests = Tests {
     "printUsage" - {

@@ -8,15 +8,37 @@ import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{
 
 scalaVersion in ThisBuild := "2.12.4"
 
-lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+lazy val vendor = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .settings(
-    libraryDependencies += "io.crashbox" %%% "spray-json" % "2.0.0-SNAPSHOT",
+    scalacOptions ++= Seq("-feature",
+                          "-language:_",
+                          "-unchecked",
+                          "-deprecation",
+                          "-Xlint",
+                          "-encoding",
+                          "utf8"),
+    libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value,
     libraryDependencies += "com.lihaoyi" %%% "utest" % "0.6.3" % "test",
     testFrameworks += new TestFramework("utest.runner.Framework"),
+  )
+  .nativeSettings(
+    scalaVersion := "2.11.12",
+    nativeLinkStubs := true
+  )
+lazy val vendorJVM = vendor.jvm
+lazy val vendorJS = vendor.js
+lazy val vendorNative = vendor.native
+
+lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+  .crossType(CrossType.Full)
+  .dependsOn(vendor)
+  .settings(
+    testFrameworks += new TestFramework("utest.runner.Framework"),
+    libraryDependencies += "com.lihaoyi" %%% "utest" % "0.6.3" % "test",
     sourceGenerators in Compile += Def.task {
-      val file
-        : File = (sourceManaged in Compile).value / "scala" / "BuildInfo.scala"
+      val file = (sourceManaged in Compile).value / "scala" / "BuildInfo.scala"
       val content =
         s"""package crashbox.ci
            |object BuildInfo { final val version: String = "${version.value}" }
@@ -34,6 +56,7 @@ lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     scalaVersion := "2.11.12",
     nativeLinkStubs := true
   )
+
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 lazy val sharedNative = shared.native
@@ -68,7 +91,15 @@ lazy val cbx = (project in file("cbx"))
   .dependsOn(sharedNative)
 
 lazy val root = (project in file("."))
-  .aggregate(server, ui, cbx, sharedJvm, sharedJs, sharedNative)
+  .aggregate(server,
+             ui,
+             cbx,
+             sharedJvm,
+             sharedJs,
+             sharedNative,
+             vendorJVM,
+             vendorJS,
+             vendorNative)
   .settings(
     publish := {},
     publishLocal := {}
