@@ -59,8 +59,8 @@ object Main extends ApiProtocol {
       }
 
     } else {
-      try {
-        cmd.parse(cbx, args).subcommand match {
+      cmd.parseOrExit(cbx, args) { command =>
+        command.subcommand match {
           case Some(cmd.CommandLine("help", args, _)) =>
             println(cbx.usage)
           case Some(cmd.CommandLine("version", args, _)) =>
@@ -72,12 +72,6 @@ object Main extends ApiProtocol {
             }
           case None =>
         }
-      } catch {
-        case err: cmd.ParseException =>
-          println(err.getMessage)
-          println(cbx.usage)
-          System.exit(1)
       }
     }
-
 }
