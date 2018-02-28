@@ -204,6 +204,9 @@ object CurlBackend {
     }
   }
 
+
+  def curlVersion = fromCString(curl_version())
+
 }
 
 trait CurlBackend extends Backend {

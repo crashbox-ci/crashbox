@@ -19,8 +19,13 @@ object Main extends ApiProtocol {
     }
   }
 
-  def main(args: Array[String]): Unit = {
+  val cbx = cmd.Command("cbx",
+    cmd.Command("help"),
+    cmd.Command("version", cmd.Option("verbose", Some('v')))
+  )
 
+
+  def main(args: Array[String]): Unit = if (args.isEmpty) {
     http.send(http.Request("GET", "https://github.com")).await match {
       case Success(res) =>
         println(res.headers.mkString("\n"))
@@ -53,6 +58,26 @@ object Main extends ApiProtocol {
       case Failure(err) => println(err)
     }
 
+  } else {
+    try {
+      cmd.parse(cbx, args).subcommand match {
+        case Some(cmd.CommandLine("help", args, _)) =>
+          println(cbx.usage)
+        case Some(cmd.CommandLine("version", args, _)) =>
+          if (args.contains("verbose")) {
+            println(s"version: ${BuildInfo.version}")
+            println(s"curl:    ${http.CurlBackend.curlVersion}")
+          } else {
+            println(BuildInfo.version)
+          }
+        case None =>
+      }
+    } catch {
+      case err: cmd.ParseException =>
+        println(err.getMessage)
+        println(cbx.usage)
+        System.exit(1)
+    }
   }
 
 }

@@ -9,7 +9,16 @@ scalaVersion in ThisBuild := "2.12.4"
 lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .settings(
-    libraryDependencies += "io.crashbox" %%% "spray-json" % "2.0.0-SNAPSHOT"
+    libraryDependencies += "io.crashbox" %%% "spray-json" % "2.0.0-SNAPSHOT",
+    sourceGenerators in Compile += Def.task{
+      val file: File = (sourceManaged in Compile).value / "scala" / "BuildInfo.scala"
+      val content =
+        s"""package crashbox.ci
+           |object BuildInfo { final val version: String = "${version.value}" }
+           |""".stripMargin
+      IO.write(file, content)
+      Seq(file)
+    }
   )
   .jsSettings(
     libraryDependencies ++= Seq(
