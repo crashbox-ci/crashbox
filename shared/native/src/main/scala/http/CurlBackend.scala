@@ -204,7 +204,6 @@ object CurlBackend {
     }
   }
 
-
   def curlVersion = fromCString(curl_version())
 
 }

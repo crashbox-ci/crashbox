@@ -19,65 +19,65 @@ object Main extends ApiProtocol {
     }
   }
 
-  val cbx = cmd.Command("cbx",
+  val cbx = cmd.Command(
+    "cbx",
     cmd.Command("help"),
-    cmd.Command("version", cmd.Option("verbose", Some('v')))
-  )
+    cmd.Command("version", cmd.Option("verbose", Some('v'))))
 
-
-  def main(args: Array[String]): Unit = if (args.isEmpty) {
-    http.send(http.Request("GET", "https://github.com")).await match {
-      case Success(res) =>
-        println(res.headers.mkString("\n"))
-        println(new String(res.body, "utf-8"))
-      case Failure(err) => println(err)
-    }
-
-    val request = http.Request("GET", "http://localhost:8080/api")
-
-    http.send(request).await match {
-      case Success(str) =>
-        println(
-          "Result: " + (new String(str.body, "utf-8")).parseJson
-            .convertTo[model.spec.Image])
-      case Failure(err) => println(err)
-    }
-
-    val content = if (args.length > 0) args(0) else "hello"
-    val post = http.Request(
-      "POST",
-      "http://localhost:8080/messages",
-      headers = Map(
-        "Content-type" -> "application/json"
-      ),
-      body = model.Message.now(content).toJson.prettyPrint.getBytes("utf-8")
-    )
-    http.send(post).await match {
-      case Success(str) =>
-        println("Message delivered: " + new String(str.body, "utf-8"))
-      case Failure(err) => println(err)
-    }
-
-  } else {
-    try {
-      cmd.parse(cbx, args).subcommand match {
-        case Some(cmd.CommandLine("help", args, _)) =>
-          println(cbx.usage)
-        case Some(cmd.CommandLine("version", args, _)) =>
-          if (args.contains("verbose")) {
-            println(s"version: ${BuildInfo.version}")
-            println(s"curl:    ${http.CurlBackend.curlVersion}")
-          } else {
-            println(BuildInfo.version)
-          }
-        case None =>
+  def main(args: Array[String]): Unit =
+    if (args.isEmpty) {
+      http.send(http.Request("GET", "https://github.com")).await match {
+        case Success(res) =>
+          println(res.headers.mkString("\n"))
+          println(new String(res.body, "utf-8"))
+        case Failure(err) => println(err)
       }
-    } catch {
-      case err: cmd.ParseException =>
-        println(err.getMessage)
-        println(cbx.usage)
-        System.exit(1)
+
+      val request = http.Request("GET", "http://localhost:8080/api")
+
+      http.send(request).await match {
+        case Success(str) =>
+          println(
+            "Result: " + (new String(str.body, "utf-8")).parseJson
+              .convertTo[model.spec.Image])
+        case Failure(err) => println(err)
+      }
+
+      val content = if (args.length > 0) args(0) else "hello"
+      val post = http.Request(
+        "POST",
+        "http://localhost:8080/messages",
+        headers = Map(
+          "Content-type" -> "application/json"
+        ),
+        body = model.Message.now(content).toJson.prettyPrint.getBytes("utf-8")
+      )
+      http.send(post).await match {
+        case Success(str) =>
+          println("Message delivered: " + new String(str.body, "utf-8"))
+        case Failure(err) => println(err)
+      }
+
+    } else {
+      try {
+        cmd.parse(cbx, args).subcommand match {
+          case Some(cmd.CommandLine("help", args, _)) =>
+            println(cbx.usage)
+          case Some(cmd.CommandLine("version", args, _)) =>
+            if (args.contains("verbose")) {
+              println(s"version: ${BuildInfo.version}")
+              println(s"curl:    ${http.CurlBackend.curlVersion}")
+            } else {
+              println(BuildInfo.version)
+            }
+          case None =>
+        }
+      } catch {
+        case err: cmd.ParseException =>
+          println(err.getMessage)
+          println(cbx.usage)
+          System.exit(1)
+      }
     }
-  }
 
 }

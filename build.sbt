@@ -1,8 +1,10 @@
 // shadow sbt-scalajs' crossProject and CrossType until Scala.js 1.0.0 is released
 
 import sbtcrossproject.{crossProject, CrossType}
-import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{toScalaJSGroupID => _, _}
-
+import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{
+  toScalaJSGroupID => _,
+  _
+}
 
 scalaVersion in ThisBuild := "2.12.4"
 
@@ -10,8 +12,9 @@ lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .settings(
     libraryDependencies += "io.crashbox" %%% "spray-json" % "2.0.0-SNAPSHOT",
-    sourceGenerators in Compile += Def.task{
-      val file: File = (sourceManaged in Compile).value / "scala" / "BuildInfo.scala"
+    sourceGenerators in Compile += Def.task {
+      val file
+        : File = (sourceManaged in Compile).value / "scala" / "BuildInfo.scala"
       val content =
         s"""package crashbox.ci
            |object BuildInfo { final val version: String = "${version.value}" }
