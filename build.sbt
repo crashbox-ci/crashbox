@@ -7,6 +7,10 @@ import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{
 }
 
 scalaVersion in ThisBuild := "2.12.4"
+version in ThisBuild := {
+  import sys.process._
+  ("git describe --always --dirty=-SNAPSHOT --match v[0-9].*" !!).tail.trim
+}
 
 lazy val vendor = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Full)

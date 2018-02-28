@@ -1,16 +1,19 @@
 package crashbox.ci
 
+import java.time.Instant
+
 import crashbox.ci.model.ApiProtocol
 import org.scalajs.dom
 import org.scalajs.dom.raw.WebSocket
 import org.scalajs.dom.{Event, MessageEvent, console, document}
 import spray.json._
 
+import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExportTopLevel
 import scala.util.{Failure, Success}
 
-@JSExportTopLevel("Graph")
-object Graph extends JsApp with ApiProtocol {
+@JSExportTopLevel("UiMain")
+object UiMain extends JsApp with ApiProtocol {
 
   def ws(path: String): String = {
     val scheme = dom.window.location.protocol match {
@@ -23,19 +26,30 @@ object Graph extends JsApp with ApiProtocol {
   case class A(x: Int)
 
   def main(args: Map[String, String]): Unit = {
-    for (i <- 0 to 10) {
-      val js = A(i).toJson.convertTo[A]
-      val node = document.createElement("p"); // Create a <li> node
-      val textnode = document.createTextNode(js.toString); // Create a text node
-      node.appendChild(textnode); // Append the text to <li>
-      env.root.appendChild(
-        node
-      )
-    }
-
     Http.get[model.spec.Image]("/api").onComplete {
       case Success(m)   => console.info(m.toString)
       case Failure(err) => console.error(err.toString)
+    }
+
+    val indicator = {
+      val node = document.createElement("p")
+      env.root.appendChild(node)
+      node
+    }
+
+    val display = {
+      val node = document.createElement("ul")
+      env.root.appendChild(node)
+      node
+    }
+    var head: dom.Element = null
+    def insert(node: dom.Element) = {
+      if (head == null) {
+        display.appendChild(node)
+      } else {
+        display.insertBefore(node, head)
+      }
+      head = node
     }
 
     val socket = new WebSocket(ws("/messages/feed"))
@@ -43,13 +57,24 @@ object Graph extends JsApp with ApiProtocol {
       val str = e.data.asInstanceOf[String]
       val message = str.parseJson.convertTo[model.Message]
 
-      val node = document.createElement("p")
-      val textnode = document.createTextNode(message.content.toString)
+      val time = (new js.Date(message.timestamp)).toISOString()
+
+      val line = s"[$time] ${message.content}"
+
+      val node = document.createElement("li")
+      val textnode = document.createTextNode(line)
       node.appendChild(textnode)
-      env.root.appendChild(
-        node
-      )
+      insert(node)
     }
+
+    socket.onopen = _ => {
+      indicator.textContent = "live: ✔"
+    }
+
+    socket.onclose = _ => {
+      indicator.textContent = "live: ✗"
+    }
+
   }
 
 }

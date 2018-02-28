@@ -142,8 +142,9 @@ object Parser {
         var escaping = false
 
         def check(subline: Maybe[CommandLine]): CommandLine = {
-          if (!remainingParameters.forall(_.required == false)) {
-            val missing = remainingParameters.toList.map(p => s"'${p.name}'")
+          val remaining = remainingParameters.toList
+          if (!remaining.forall(_.required == false)) {
+            val missing = remaining.toList.map(p => s"'${p.name}'")
             fatal(s"missing parameter(s) ${missing.mkString(", ")}")
           } else if (!subcommands.isEmpty && subline.isEmpty) {
             val missing = command.commands.map(c => s"'${c.name}'")
