@@ -16,6 +16,7 @@ object Main extends ApiProtocol with Util {
   val cbx = cmd.Command(
     "cbx",
     cmd.Option("server", Some('s'), Some(cmd.Parameter("url"))),
+    cmd.Command("completion"),
     cmd.Command("help"),
     cmd.Command("version", cmd.Option("verbose", Some('v'))),
     cmd.Command("message",
@@ -32,12 +33,18 @@ object Main extends ApiProtocol with Util {
     val server = command.arguments.getOrElse("server", "http://localhost:8080")
     command.subcommand match {
       case Some(cmd.CommandLine("version", args, _)) =>
+        import BuildInfo._
+        import NativeBuildInfo._
         if (args.contains("verbose")) {
-          println(s"version: ${BuildInfo.version}")
-          println(s"curl:    ${http.CurlBackend.curlVersion}")
+          println(s"cbx $Version")
+          println(s"curl ${http.CurlBackend.curlVersion}")
+          println(s"compiled with Scala Native $NativeVersion on $Platform")
+
         } else {
-          println(BuildInfo.version)
+          println(BuildInfo.Version)
         }
+      case Some(cmd.CommandLine("completion", _, _)) =>
+        println(cbx.completion)
       case Some(cmd.CommandLine("help", _, _)) =>
         println(cbx.usage)
       case Some(cmd.CommandLine("message", args, _)) =>

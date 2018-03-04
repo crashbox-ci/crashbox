@@ -57,6 +57,8 @@ case class Command(
 
   def usage: String = "Usage: " + subusage(0)
 
+  def completion: String = cmd.completion.Bash.completion(this)
+
 }
 object Command {
 

@@ -5,10 +5,10 @@ import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{
   toScalaJSGroupID => _,
   _
 }
+import sys.process._
 
 scalaVersion in ThisBuild := "2.12.4"
 version in ThisBuild := {
-  import sys.process._
   ("git describe --always --dirty=-SNAPSHOT --match v[0-9].*" !!).tail.trim
 }
 
@@ -45,7 +45,9 @@ lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
       val file = (sourceManaged in Compile).value / "scala" / "BuildInfo.scala"
       val content =
         s"""package crashbox.ci
-           |object BuildInfo { final val version: String = "${version.value}" }
+           |object BuildInfo {
+           |  final val Version: String = "${version.value}"
+           |}
            |""".stripMargin
       IO.write(file, content)
       Seq(file)
@@ -59,7 +61,19 @@ lazy val shared = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   )
   .nativeSettings(
     scalaVersion := "2.11.12",
-    nativeLinkStubs := true
+    nativeLinkStubs := true,
+    sourceGenerators in Compile += Def.task {
+      val file = (sourceManaged in Compile).value / "scala" / "NativeBuildInfo.scala"
+      val content =
+        s"""package crashbox.ci
+           |object NativeBuildInfo {
+           |  final val Platform: String = "${("uname -s" !!).trim}/${("uname -m" !!).trim}"
+           |  final val NativeVersion: String = "${nativeVersion}"
+           |}
+           |""".stripMargin
+      IO.write(file, content)
+      Seq(file)
+    }
   )
 
 lazy val sharedJvm = shared.jvm
